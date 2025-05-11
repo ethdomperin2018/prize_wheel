@@ -114,7 +114,7 @@ const PrizeAwardedPage: React.FC = () => {
                 Thanks! Join our Discord server to claim your prize.
               </p>
               <a
-                href="https://discord.gg/your-server"
+                href="https://discord.gg/CH2N2zT6"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 mt-4 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-lg font-bold transition-all"
