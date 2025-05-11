@@ -1,16 +1,69 @@
+import { useEffect, useState } from 'react';
 import { useUser } from '../context/UserContext';
-import { Share2, Twitter, Gift } from 'lucide-react';
+import { Share2, Gift, Discord } from 'lucide-react';
 import PageContainer from '../components/PageContainer';
 import confetti from '../utils/confetti';
-import { useEffect } from 'react';
+import { supabase, generateUniqueCode } from '../services/supabase';
 
 const PrizeAwardedPage: React.FC = () => {
   const { state } = useUser();
+  const [uniqueCode, setUniqueCode] = useState<string>('');
+  const [discordUsername, setDiscordUsername] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
   
   useEffect(() => {
-    // Trigger confetti effect when page loads
     confetti();
+    generateAndStorePrize();
   }, []);
+
+  const generateAndStorePrize = async () => {
+    const code = generateUniqueCode();
+    setUniqueCode(code);
+
+    try {
+      const { error } = await supabase
+        .from('prize_claims')
+        .insert([
+          {
+            code,
+            prize: state.prize,
+            ip_address: '', // This will be set by Supabase Edge Function
+          }
+        ]);
+
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error storing prize:', err);
+      setError('Failed to generate prize code. Please try again.');
+    }
+  };
+
+  const handleDiscordSubmit = async () => {
+    if (!discordUsername.trim()) {
+      setError('Please enter your Discord username');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const { error } = await supabase
+        .from('prize_claims')
+        .update({ discord_username: discordUsername.trim() })
+        .eq('code', uniqueCode);
+
+      if (error) throw error;
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Error updating Discord username:', err);
+      setError('Failed to save Discord username. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   
   return (
     <PageContainer>
@@ -22,32 +75,60 @@ const PrizeAwardedPage: React.FC = () => {
           <h1 className="text-4xl font-bold mb-2 text-white">
             Congratulations!
           </h1>
-          <p className="text-xl text-yellow-300 font-bold">
+          <p className="text-xl text-yellow-300 font-bold mb-4">
             You won: {state.prize || 'A Prize'}
           </p>
-        </div>
-        
-        <div className="bg-white/5 p-6 rounded-lg mb-8">
-          <p className="mb-4">
-            Thank you for participating! Your prize will be sent to you shortly.
-          </p>
           
-          <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="flex items-center justify-center gap-2 px-6 py-3 bg-[#1DA1F2] hover:bg-[#1a94df] text-white rounded-full font-bold transition-all transform hover:scale-105">
-              <Twitter size={20} />
-              <span>Share on Twitter</span>
-            </button>
-            
-            <button className="flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-full font-bold transition-all transform hover:scale-105">
-              <Share2 size={20} />
-              <span>Share with Friends</span>
-            </button>
+          <div className="bg-white/5 p-6 rounded-lg mb-6">
+            <p className="text-lg mb-2">Your Unique Prize Code:</p>
+            <div className="bg-white/10 p-4 rounded-lg font-mono text-2xl tracking-wider text-yellow-300">
+              {uniqueCode}
+            </div>
           </div>
+
+          {!submitted ? (
+            <div className="bg-white/5 p-6 rounded-lg mb-6">
+              <p className="mb-4">Enter your Discord username to claim your prize:</p>
+              <input
+                type="text"
+                value={discordUsername}
+                onChange={(e) => setDiscordUsername(e.target.value)}
+                placeholder="Discord username#0000"
+                className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-gray-400 mb-4"
+              />
+              <button
+                onClick={handleDiscordSubmit}
+                disabled={isSubmitting}
+                className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-lg font-bold transition-all"
+              >
+                <Discord size={20} />
+                <span>{isSubmitting ? 'Submitting...' : 'Submit Discord Username'}</span>
+              </button>
+              {error && (
+                <p className="mt-2 text-red-400 text-sm">{error}</p>
+              )}
+            </div>
+          ) : (
+            <div className="bg-green-500/20 border border-green-500 p-4 rounded-lg mb-6">
+              <p className="text-green-300">
+                Thanks! Join our Discord server to claim your prize.
+              </p>
+              <a
+                href="https://discord.gg/your-server"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 mt-4 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-lg font-bold transition-all"
+              >
+                <Discord size={20} />
+                <span>Join Discord Server</span>
+              </a>
+            </div>
+          )}
         </div>
-        
+
         <div className="text-sm text-gray-300">
-          <p>Prize redemption instructions will be sent to you.</p>
-          <p className="mt-2">Thank you for participating!</p>
+          <p>Save your unique code! You'll need it to claim your prize.</p>
+          <p className="mt-2">This page can only be viewed once.</p>
         </div>
       </div>
     </PageContainer>
