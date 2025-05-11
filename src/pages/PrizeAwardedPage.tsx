@@ -23,13 +23,16 @@ const PrizeAwardedPage: React.FC = () => {
     setUniqueCode(code);
 
     try {
+      const { data: ipData } = await fetch('https://api.ipify.org?format=json')
+        .then(res => res.json());
+
       const { error } = await supabase
         .from('prize_claims')
         .insert([
           {
             code,
             prize: state.prize,
-            ip_address: '', // This will be set by Supabase Edge Function
+            ip_address: ipData.ip,
           }
         ]);
 
@@ -52,7 +55,11 @@ const PrizeAwardedPage: React.FC = () => {
     try {
       const { error } = await supabase
         .from('prize_claims')
-        .update({ discord_username: discordUsername.trim() })
+        .update({ 
+          discord_username: discordUsername.trim(),
+          claimed: true,
+          claimed_at: new Date().toISOString()
+        })
         .eq('code', uniqueCode);
 
       if (error) throw error;
