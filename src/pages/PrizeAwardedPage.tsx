@@ -23,10 +23,17 @@ const PrizeAwardedPage: React.FC = () => {
     setUniqueCode(code);
 
     try {
-      const { data: ipData } = await fetch('https://api.ipify.org?format=json')
-        .then(res => res.json());
+      const response = await fetch('https://api.ipify.org?format=json');
+      if (!response.ok) {
+        throw new Error('Failed to fetch IP address');
+      }
+      
+      const ipData = await response.json();
+      if (!ipData || !ipData.ip) {
+        throw new Error('Invalid IP address data received');
+      }
 
-      const { error } = await supabase
+      const { error: supabaseError } = await supabase
         .from('prize_claims')
         .insert([
           {
@@ -36,7 +43,7 @@ const PrizeAwardedPage: React.FC = () => {
           }
         ]);
 
-      if (error) throw error;
+      if (supabaseError) throw supabaseError;
     } catch (err) {
       console.error('Error storing prize:', err);
       setError('Failed to generate prize code. Please try again.');
