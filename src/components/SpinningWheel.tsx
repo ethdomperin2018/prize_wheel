@@ -105,7 +105,7 @@ const SpinningWheel: React.FC<SpinningWheelProps> = ({
     if (isSpinning) {
       let speed = 0.3;
       let slowDown = false;
-      let startTime = Date.now();
+      const startTime = Date.now();
       
       const animate = () => {
         const elapsedTime = Date.now() - startTime;
