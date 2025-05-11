@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useUser } from '../context/UserContext';
-import { Share2, Gift, Discord } from 'lucide-react';
+import { Share2, Gift, Disc as Discord } from 'lucide-react';
 import PageContainer from '../components/PageContainer';
 import confetti from '../utils/confetti';
 import { supabase, generateUniqueCode } from '../services/supabase';
