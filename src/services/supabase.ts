@@ -13,3 +13,7 @@ export const generateUniqueCode = () => {
   }
   return code;
 };
+
+export const generateSessionId = () => {
+  return crypto.randomUUID();
+};
