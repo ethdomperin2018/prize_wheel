@@ -25,16 +25,16 @@ CREATE TABLE IF NOT EXISTS wheel_sessions (
   is_used boolean DEFAULT false
 );
 
-ALTER TABLE wheel_sessions ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE wheel_sessions ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Anyone can insert sessions"
-  ON wheel_sessions
-  FOR INSERT
-  TO public
-  WITH CHECK (true);
+-- CREATE POLICY "Anyone can insert sessions"
+--   ON wheel_sessions
+--   FOR INSERT
+--   TO public
+--   WITH CHECK (true);
 
-CREATE POLICY "Users can read their own sessions"
-  ON wheel_sessions
-  FOR SELECT
-  TO public
-  USING (session_id = current_setting('request.headers')::json->>'x-session-id');
+-- CREATE POLICY "Users can read their own sessions"
+--   ON wheel_sessions
+--   FOR SELECT
+--   TO public
+--   USING (session_id = current_setting('request.headers')::json->>'x-session-id');

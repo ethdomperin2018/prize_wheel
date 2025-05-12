@@ -29,16 +29,16 @@ CREATE TABLE IF NOT EXISTS prize_claims (
   claimed_at timestamptz
 );
 
-ALTER TABLE prize_claims ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE prize_claims ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Anyone can insert prize claims"
-  ON prize_claims
-  FOR INSERT
-  TO public
-  WITH CHECK (true);
+-- CREATE POLICY "Anyone can insert prize claims"
+--   ON prize_claims
+--   FOR INSERT
+--   TO public
+--   WITH CHECK (true);
 
-CREATE POLICY "Users can read their own claims by IP"
-  ON prize_claims
-  FOR SELECT
-  TO public
-  USING (ip_address = current_setting('request.headers')::json->>'x-real-ip');
+-- CREATE POLICY "Users can read their own claims by IP"
+--   ON prize_claims
+--   FOR SELECT
+--   TO public
+--   USING (ip_address = current_setting('request.headers')::json->>'x-real-ip');

@@ -1,7 +1,30 @@
 // This file would interact with your actual FastAPI backend
 
+// export const verifyTwitterFollow = async (username: string): Promise<{ success: boolean, message?: string }> => {
+//   return { success: true, message: "success" };
+// };
+
 export const verifyTwitterFollow = async (username: string): Promise<{ success: boolean, message?: string }> => {
-  return { success: true, message: "success" };
+  try {
+    const response = await fetch('http://localhost:8000/api/verify-twitter-follow', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { success: false, message: errorData.detail || 'Failed to verify Twitter follow' };
+    }
+
+    const data = await response.json();
+    return { success: data.success, message: data.message };
+  } catch (error) {
+    console.error('Error verifying Twitter follow:', error);
+    return { success: false, message: 'An error occurred while verifying Twitter follow' };
+  }
 };
 
 export const spinWheel = async (): Promise<{ prize: string }> => {
