@@ -31,23 +31,27 @@ export const verifySession = async (sessionId: string | null): Promise<boolean> 
 
     if (error) throw error;
 
-    // If we found a valid session, mark it as used
-    if (data) {
-      const { error: updateError } = await supabase
-        .from('wheel_sessions')
-        .update({ 
-          is_used: true,
-          accessed_at: new Date().toISOString()
-        })
-        .eq('session_id', sessionId);
-
-      if (updateError) throw updateError;
-      return true;
-    }
-
-    return false;
+    return !!data;
   } catch (err) {
     console.error('Error verifying session:', err);
+    return false;
+  }
+};
+
+export const markSessionAsUsed = async (sessionId: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('wheel_sessions')
+      .update({ 
+        is_used: true,
+        accessed_at: new Date().toISOString()
+      })
+      .eq('session_id', sessionId);
+
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.error('Error marking session as used:', err);
     return false;
   }
 };
