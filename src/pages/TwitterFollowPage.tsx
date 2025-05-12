@@ -36,6 +36,10 @@ const TwitterFollowPage: React.FC = () => {
 
       // Store session ID in context for later use
       dispatch({ type: 'SET_SESSION_ID', payload: sessionId });
+
+      // Update URL with session ID
+      const newUrl = `${window.location.pathname}?session=${sessionId}`;
+      window.history.replaceState({}, '', newUrl);
     } catch (err) {
       console.error('Error creating session:', err);
       setError("Failed to initialize session. Please try again.");
