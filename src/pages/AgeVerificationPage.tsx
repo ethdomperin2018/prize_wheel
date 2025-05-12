@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { AlertTriangle } from 'lucide-react';
 import PageContainer from '../components/PageContainer';
-import { generateSessionId } from '../services/supabase';
 
 const AgeVerificationPage: React.FC = () => {
   const { dispatch } = useUser();
@@ -12,13 +11,8 @@ const AgeVerificationPage: React.FC = () => {
 
   const handleYesClick = () => {
     dispatch({ type: 'VERIFY_AGE' });
-    
-    // Generate a session ID and store it
-    const sessionId = generateSessionId();
-    dispatch({ type: 'SET_SESSION_ID', payload: sessionId });
-    
-    // Navigate to twitter-follow with session ID
-    navigate(`/twitter-follow?session=${sessionId}`);
+    // dispatch({ type: 'SET_TWITTER_USERNAME', payload: cleanUsername });
+    navigate('/twitter-follow');
   };
 
   const handleNoClick = () => {
