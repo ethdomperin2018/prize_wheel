@@ -17,3 +17,37 @@ export const generateUniqueCode = () => {
 export const generateSessionId = () => {
   return crypto.randomUUID();
 };
+
+export const verifySession = async (sessionId: string | null): Promise<boolean> => {
+  if (!sessionId) return false;
+
+  try {
+    const { data, error } = await supabase
+      .from('wheel_sessions')
+      .select('*')
+      .eq('session_id', sessionId)
+      .eq('is_used', false)
+      .single();
+
+    if (error) throw error;
+
+    // If we found a valid session, mark it as used
+    if (data) {
+      const { error: updateError } = await supabase
+        .from('wheel_sessions')
+        .update({ 
+          is_used: true,
+          accessed_at: new Date().toISOString()
+        })
+        .eq('session_id', sessionId);
+
+      if (updateError) throw updateError;
+      return true;
+    }
+
+    return false;
+  } catch (err) {
+    console.error('Error verifying session:', err);
+    return false;
+  }
+};
